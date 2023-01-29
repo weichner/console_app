@@ -1,5 +1,4 @@
 import inquirer from 'inquirer';
-
 import colors from 'colors';
 
 const menuOpts = [
@@ -10,45 +9,44 @@ const menuOpts = [
     choices: [
       {
         value: '1',
-        name: '1. Create a task',
+        name: `${'1.'.green} Create a task`,
       },
       {
         value: '2',
-        name: '2. List tasks',
+        name: `${'2.'.green} List tasks`,
       },
       {
         value: '3',
-        name: '3. List completed tasks',
+        name: `${'3.'.green} List completed tasks`,
       },
       {
         value: '4',
-        name: '4. List pending tasks',
+        name: `${'4.'.green} List pending tasks`,
       },
       {
         value: '5',
-        name: '5. Complete task(s)',
+        name: `${'5.'.green} Complete task(s)`,
       },
       {
         value: '6',
-        name: '6. Delete task(s)',
+        name: `${'6.'.green} Delete task(s)`,
       },
       {
         value: '0',
-        name: '0. Exit',
+        name: `${'0.'.green} Exit`,
       },
     ],
   },
 ];
 
 const inquirerMenu = async () => {
-  //console.clear();
   console.log('==========================='.green);
-  console.log('   Select an Option'.green);
+  console.log('   Select an Option'.white);
   console.log('===========================\n'.green);
 
-  const option = await inquirer.prompt(menuOpts);
+  const { Option } = await inquirer.prompt(menuOpts);
 
-  return option;
+  return Option;
 };
 
 const pause = async () => {
@@ -79,8 +77,78 @@ const readInput = async (message) => {
     },
   ];
 
-  const { desc } = await inquirer.prompt(question);
+  const desc = await inquirer.prompt(question);
   return desc;
 };
 
-export { inquirerMenu, pause, readInput };
+const deleteTaskList = async (tasks = []) => {
+  const choices = tasks.map((task, i) => {
+    const idx = `${i + 1}.`.green;
+
+    return {
+      value: task.id,
+      name: `${idx} ${task.description}`,
+    };
+  });
+
+  // unshift to added at the beginning of the array
+  choices.unshift({
+    value: '0',
+    name: '0.'.green + ' Cancel',
+  });
+
+  const questions = [
+    {
+      type: 'list',
+      name: 'id',
+      message: 'delete',
+      choices,
+    },
+  ];
+  const { id } = await inquirer.prompt(questions);
+  return id;
+};
+
+const confirmation = async (message) => {
+  const question = [
+    {
+      type: 'confirm',
+      name: 'ok',
+      message,
+    },
+  ];
+  const { ok } = await inquirer.prompt(question);
+  return ok;
+};
+
+const showCheckList = async (tasks = []) => {
+  const choices = tasks.map((task, i) => {
+    const idx = `${i + 1}.`.green;
+
+    return {
+      value: task.id,
+      name: `${idx} ${task.description}`,
+      checked: task.completed ? true : false,
+    };
+  });
+
+  const question = [
+    {
+      type: 'checkbox',
+      name: 'ids',
+      message: 'Selections',
+      choices,
+    },
+  ];
+  const { ids } = await inquirer.prompt(question);
+  return ids;
+};
+
+export {
+  inquirerMenu,
+  pause,
+  readInput,
+  deleteTaskList,
+  confirmation,
+  showCheckList,
+};
